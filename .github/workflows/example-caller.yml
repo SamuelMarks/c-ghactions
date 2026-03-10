@@ -1,0 +1,15 @@
+name: Self-Test Caller
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  call-reusable-workflow:
+    # In a real project, this would be: 
+    # uses: SamuelMarks/c-ghactions/.github/workflows/c-cmake-ci.yml@master
+    uses: ./.github/workflows/c-cmake-ci.yml
+    with:
+      build_type: 'Release'
