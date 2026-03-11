@@ -33,7 +33,7 @@ if not defined VCPKG_INSTALLATION_ROOT if not defined VCPKG_ROOT (
 )
 
 set "CMAKE_EXTRA_ARGS="
-if defined VCPKG_INSTALLATION_ROOT (
+if defined NO_VCPKG_INSTALLATION_ROOT (
   set "CMAKE_EXTRA_ARGS=-DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake"
 ) else if defined VCPKG_ROOT (
   set "CMAKE_EXTRA_ARGS=-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake"

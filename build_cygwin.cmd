@@ -13,7 +13,8 @@ if errorlevel 1 exit /b 1
 cmake --build "%BUILD_DIR%" --parallel 4
 if errorlevel 1 exit /b 1
 pushd "%BUILD_DIR%"
-ctest -C "%BUILD_TYPE%" --output-on-failure
+export PATH=\x22/:/_deps/c89stringutils-build/:/_deps/c_abstract_http-build/:\x22
+ctest -C \x22%BUILD_TYPE%\x22 --output-on-failure
 if errorlevel 1 exit /b 1
 popd
 
