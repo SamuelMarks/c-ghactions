@@ -7,6 +7,22 @@ on:
         description: 'Default CMake build type (Release, Debug, RelWithDebInfo, MinSizeRel)'
         default: 'Debug'
         type: string
+      cmake_configure_flags:
+        description: 'Additional CMake configuration flags (e.g. -DBUILD_TESTING=ON)'
+        default: ''
+        type: string
+      cmake_build_flags:
+        description: 'Additional CMake build flags'
+        default: ''
+        type: string
+      project_name:
+        description: 'Project name for auto test flag. Defaults to repository name.'
+        default: ''
+        type: string
+      auto_test_flag:
+        description: 'Automatically add -D<PROJECT_NAME>_TESTING=ON (derived from project_name or repo name)'
+        default: true
+        type: boolean
 
 jobs:
   build-and-test:
@@ -234,7 +250,12 @@ jobs:
         if: matrix.compiler == 'cygwin'
         uses: cygwin/cygwin-install-action@v6
         with:
-          packages: cmake,gcc-core,gcc-g++,make,dos2unix,libsqlite3-devel
+          packages: cmake,gcc-core,gcc-g++,make,dos2unix
+
+      - name: Configure Cygwin bash to ignore CR
+        if: matrix.compiler == 'cygwin'
+        shell: pwsh
+        run: Add-Content -Path $env:GITHUB_ENV -Value "SHELLOPTS=igncr",libsqlite3-devel
 
       - name: Configure Cygwin bash to ignore CR
         if: matrix.compiler == 'cygwin'
@@ -320,13 +341,19 @@ jobs:
             export CXX=clang++
           fi
 
+          # Auto Test Flag derived from project name
+          if [ "${{ inputs.auto_test_flag }}" = "true" ]; then
+            PROJ_NAME="${{ inputs.project_name }}"
+            if [ -z "$PROJ_NAME" ]; then
+              PROJ_NAME="${GITHUB_REPOSITORY#*/}"
+            fi
+            # Uppercase and replace hyphens with underscores
+            PROJ_NAME_UPPER=$(echo "$PROJ_NAME" | tr 'a-z' 'A-Z' | tr '-' '_')
+            CMAKE_EXTRA_ARGS+=("-D${PROJ_NAME_UPPER}_TESTING=ON")
+          fi
+
           # Execute CMake
           cmake -B build -S . \
-                      "-DC_CDD_BUILD_TESTING=ON" \
-            "-DC_ORM_BUILD_TESTING=ON" \
-            "-DC_ABSTRACT_HTTP_BUILD_TESTING=ON" \
-            "-DC_FS_BUILD_TESTING=ON" \
-            "-DBUILD_TESTING=ON" \
             "-DCMAKE_BUILD_TYPE=${{ inputs.build_type }}" \
             "-DBUILD_SHARED_LIBS=${{ matrix.shared }}" \
             "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=${{ matrix.lto }}" \
@@ -335,11 +362,12 @@ jobs:
             "-DCDD_DEPS=${{ matrix.deps }}" \
             "-DCDD_MSVC_RTC=${{ matrix.rtc }}" \
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=${{ matrix.crt }}" \
-            "${CMAKE_EXTRA_ARGS[@]}"
+            "${CMAKE_EXTRA_ARGS[@]}" \
+            ${{ inputs.cmake_configure_flags }}
 
       - name: Build
         shell: bash
-        run: cmake --build build --config "${{ inputs.build_type }}" --parallel 4
+        run: cmake --build build --config "${{ inputs.build_type }}" --parallel 4 ${{ inputs.cmake_build_flags }}
 
       - name: Run Tests
         shell: bash

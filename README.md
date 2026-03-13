@@ -39,8 +39,20 @@ jobs:
   build:
     uses: SamuelMarks/c-ci/.github/workflows/c-cmake-ci.yml@master
     with:
-      # Optional: Change default build type here
+      # Optional: Change default build type here (default is Debug)
       build_type: 'Release'
+      
+      # Optional: Pass custom CMake configuration flags
+      cmake_configure_flags: '-DBUILD_EXAMPLES=ON'
+      
+      # Optional: Pass custom CMake build flags
+      cmake_build_flags: '--clean-first'
+
+      # Optional: Override the project name used for the auto test flag (defaults to repo name)
+      project_name: 'C_ORM'
+
+      # Optional: Disable the automatic injection of -D<PROJECT_NAME>_TESTING=ON
+      auto_test_flag: true
 ```
 
 ---
@@ -53,6 +65,7 @@ The magic of this reusable workflow lies in **cache variable injection**. For yo
 
 | CMake Variable | Possible Values | Description |
 | :--- | :--- | :--- |
+| `<PROJECT_NAME>_TESTING`| `ON` | Automatically injected if `auto_test_flag` is true. The prefix is derived from the `project_name` input or the GitHub repository name (uppercased, hyphens replaced with underscores). |
 | `BUILD_SHARED_LIBS` | `ON`, `OFF` | Native CMake variable. Determines if `add_library` produces shared or static libraries. |
 | `CMAKE_INTERPROCEDURAL_OPTIMIZATION`| `ON`, `OFF` | Native CMake variable for Link-Time Optimization (LTO). |
 | `CMAKE_MSVC_RUNTIME_LIBRARY` | `MultiThreaded...`| Native CMake variable. Toggles `/MT`, `/MD`, `/MTd`, `/MDd`. |
