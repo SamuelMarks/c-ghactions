@@ -296,9 +296,22 @@ jobs:
         uses: egor-tensin/setup-mingw@v3
 
       - name: Configure CMake
-        shell: bash
+        shell: ${{ matrix.compiler == 'cygwin' && 'C:/cygwin/bin/bash.exe --login -o igncr {0}' || 'bash' }}
         run: |
           CMAKE_EXTRA_ARGS=()
+
+          # Cygwin Compiler Overrides
+          if [ "${{ matrix.compiler }}" = "cygwin" ]; then
+            # Ensure we use Cygwin's absolute tool paths instead of accidentally picking up MSYS or Windows native tools
+            CYG_CC=$(cygpath -m "$(command -v gcc)")
+            CYG_CXX=$(cygpath -m "$(command -v g++)")
+            CYG_MAKE=$(cygpath -m "$(command -v make)")
+            export CC="$CYG_CC"
+            export CXX="$CYG_CXX"
+            CMAKE_EXTRA_ARGS+=("-DCMAKE_C_COMPILER=$CYG_CC")
+            CMAKE_EXTRA_ARGS+=("-DCMAKE_CXX_COMPILER=$CYG_CXX")
+            CMAKE_EXTRA_ARGS+=("-DCMAKE_MAKE_PROGRAM=$CYG_MAKE")
+          fi
 
           # Dependency Provider (VCPKG)
           if [ "${{ matrix.deps }}" = "VCPKG" ]; then
@@ -366,11 +379,11 @@ jobs:
             ${{ inputs.cmake_configure_flags }}
 
       - name: Build
-        shell: bash
+        shell: ${{ matrix.compiler == 'cygwin' && 'C:/cygwin/bin/bash.exe --login -o igncr {0}' || 'bash' }}
         run: cmake --build build --config "${{ inputs.build_type }}" --parallel 4 ${{ inputs.cmake_build_flags }}
 
       - name: Run Tests
-        shell: bash
+        shell: ${{ matrix.compiler == 'cygwin' && 'C:/cygwin/bin/bash.exe --login -o igncr {0}' || 'bash' }}
         working-directory: build
         run: ctest -C "${{ inputs.build_type }}" --output-on-failure
 

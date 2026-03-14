@@ -20,7 +20,7 @@ set "RUN_SCRIPT=!SRC_DIR!\.run_ubuntu_tests.sh"
 echo set -e
 echo export BUILD_TYPE="Debug"
 echo echo "Setting up VCPKG..."
-echo if [ ! -d "/workspace_build/vcpkg" ]; then
+echo if [ ^^! -d "/workspace_build/vcpkg" ]; then
 echo   git clone --branch project0 https://github.com/offscale/vcpkg.git /workspace_build/vcpkg
 echo   /workspace_build/vcpkg/bootstrap-vcpkg.sh -disableMetrics
 echo fi

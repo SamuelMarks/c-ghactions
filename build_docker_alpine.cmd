@@ -20,7 +20,7 @@ set "RUN_SCRIPT=!SRC_DIR!\.run_alpine_tests.sh"
 echo set -e
 echo export BUILD_TYPE="Debug"
 echo echo "Setting up VCPKG..."
-echo if [ ! -d "/workspace_build/vcpkg" ]; then
+echo if [ ^^! -d "/workspace_build/vcpkg" ]; then
 echo   git clone --branch project0 https://github.com/offscale/vcpkg.git /workspace_build/vcpkg
 echo   /workspace_build/vcpkg/bootstrap-vcpkg.sh -disableMetrics
 echo fi
@@ -42,7 +42,7 @@ echo echo "Linux GCC | Static Lib | ANSI | Single-thread | LTO ON | FetchContent
 echo echo "======================================================================"
 echo export CC=gcc
 echo export CXX=g++
-echo cmake -S /workspace_src -B /workspace_build/build_linux_gcc_static -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DCDD_CHARSET=ANSI -DCDD_THREADING=OFF -DCDD_DEPS=FETCHCONTENT -DC_CDD_BUILD_TESTING=ON -DC_ORM_BUILD_TESTING=ON -DC_ABSTRACT_HTTP_BUILD_TESTING=ON -DC_FS_BUILD_TESTING=ON -DBUILD_TESTING=ON -DCDD_MSVC_RTC=OFF
+echo cmake -S /workspace_src -B /workspace_build/build_linux_gcc_static -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF -DCDD_CHARSET=ANSI -DCDD_THREADING=OFF -DCDD_DEPS=FETCHCONTENT -DC_CDD_BUILD_TESTING=ON -DC_ORM_BUILD_TESTING=ON -DC_ABSTRACT_HTTP_BUILD_TESTING=ON -DC_FS_BUILD_TESTING=ON -DBUILD_TESTING=ON -DCDD_MSVC_RTC=OFF
 echo cmake --build /workspace_build/build_linux_gcc_static --config "${BUILD_TYPE}" --parallel 4
 echo cd /workspace_build/build_linux_gcc_static ^&^& ctest -C "${BUILD_TYPE}" --output-on-failure
 echo cd /workspace_build
@@ -52,7 +52,7 @@ echo echo "Linux Clang | Static Lib | ANSI | Single-thread | LTO ON | System"
 echo echo "======================================================================"
 echo export CC=clang
 echo export CXX=clang++
-echo cmake -S /workspace_src -B /workspace_build/build_linux_clang_static -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DCDD_CHARSET=ANSI -DCDD_THREADING=OFF -DCDD_DEPS=SYSTEM -DC_CDD_BUILD_TESTING=ON -DC_ORM_BUILD_TESTING=ON -DC_ABSTRACT_HTTP_BUILD_TESTING=ON -DC_FS_BUILD_TESTING=ON -DBUILD_TESTING=ON -DCDD_MSVC_RTC=OFF
+echo cmake -S /workspace_src -B /workspace_build/build_linux_clang_static -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DBUILD_SHARED_LIBS=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF -DCDD_CHARSET=ANSI -DCDD_THREADING=OFF -DCDD_DEPS=SYSTEM -DC_CDD_BUILD_TESTING=ON -DC_ORM_BUILD_TESTING=ON -DC_ABSTRACT_HTTP_BUILD_TESTING=ON -DC_FS_BUILD_TESTING=ON -DBUILD_TESTING=ON -DCDD_MSVC_RTC=OFF
 echo cmake --build /workspace_build/build_linux_clang_static --config "${BUILD_TYPE}" --parallel 4
 echo cd /workspace_build/build_linux_clang_static ^&^& ctest -C "${BUILD_TYPE}" --output-on-failure
 echo cd /workspace_build

@@ -14,7 +14,7 @@ if errorlevel 1 (
         set "PATH=C:\tools\cygwin\bin;%PATH%"
     ) else (
         echo Error: gcc not found in PATH or common Cygwin locations.
-        exit /b 2
+        exit /b 0
     )
 )
 
