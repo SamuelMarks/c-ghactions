@@ -298,6 +298,8 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
+          touch run_configure.sh
+          chmod +x run_configure.sh
           cat << 'EOF' > run_configure.sh
           set -e
           CMAKE_EXTRA_ARGS=()
@@ -380,6 +382,8 @@ jobs:
             "${CMAKE_EXTRA_ARGS[@]}" \
             ${{ inputs.cmake_configure_flags }}
           EOF
+          
+          chmod +x ./run_configure.sh
           
           if [ "${{ matrix.compiler }}" = "cygwin" ]; then
             C:/cygwin/bin/bash.exe --login -o igncr -c 'cd "$(cygpath -u "$GITHUB_WORKSPACE")"; ./run_configure.sh'

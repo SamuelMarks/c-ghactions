@@ -12,8 +12,9 @@ By centralizing the CI pipeline here, all CDD projects automatically benefit fro
 *   **Sparse Matrix Optimization:** Exhaustive testing without exhaustive costs. We test combinations of every variable across 13 unique, carefully crafted profiles instead of 100+ raw permutations.
 *   **Comprehensive Cross-Platform Support:**
     *   **Windows:** MSVC 2026 (Latest), MSVC 2022, MinGW, Cygwin *(MSVC 2005 support requires a self-hosted runner and is configured but disabled by default)*.
-    *   **Linux:** Ubuntu with GCC and Clang.
+    *   **Linux:** Ubuntu with GCC and Clang. *Alpine Linux (musl) is supported via local Docker scripts.*
     *   **macOS:** Apple Clang.
+    *   **Legacy Systems:** DOS via OpenWatcom *(local build script only)*.
 *   **Target Linking:** Shared (`/MD`, `/MDd`) vs Static (`/MT`, `/MTd`) CRT linkage; Shared Library (`.dll`, `.so`, `.dylib`) vs Static Library (`.lib`, `.a`) output.
 *   **Build Modifiers:** Link-Time Optimization (LTO) on/off, Charset variations (`UNICODE` vs `ANSI`), MSVC Runtime Checks (`RTC1`, `RTCu`, `RTCs`), and Threading limits.
 *   **Cross-Platform Line Ending Safety:** Transparently converts source code using `unix2dos` and `dos2unix` depending on the compiler environment, preventing insidious compilation failures or macro breakage on MSVC vs GCC due to `\r\n` and `\n` discrepancies.
@@ -54,6 +55,27 @@ jobs:
       # Optional: Disable the automatic injection of -D<PROJECT_NAME>_TESTING=ON
       auto_test_flag: true
 ```
+
+---
+
+## 💻 Local Build and Testing Scripts
+
+In addition to the GitHub Actions workflow, this repository provides a suite of local build scripts. These scripts mirror the CI matrix locally and introduce supplementary targets that are tricky or expensive to run on standard GitHub-hosted runners.
+
+### Duplicating CI Locally
+You can run the major GitHub Actions variations directly on your Windows development machine:
+*   **`duplicate_gh_actions.cmd`:** Runs the full suite sequentially, simulating the GitHub Actions matrix for MSVC (2026, 2022, 2005), MinGW, Cygwin, Ubuntu (via Docker), and Alpine (via Docker).
+*   **`build_all_parallel.ps1`:** Runs the same builds in parallel using PowerShell jobs for drastically reduced local test times.
+*   **`build_all.cmd` / `build_all_serial.cmd`:** Alternative entry points for sequential batch testing.
+
+### Individual Build Scripts
+You can run specific environments directly if you are investigating a targeted issue:
+*   `build_msvc2026.cmd` / `build_msvc2022.cmd` / `build_msvc2005.cmd`
+*   `build_mingw.cmd` / `build_cygwin.cmd`
+*   `build_docker_ubuntu.cmd` / `build_docker_alpine.cmd` *(Requires Docker)*
+*   `build_dos_watcom.cmd` *(Requires OpenWatcom installed at `C:\usr\WATCOM`)*
+*   `build_msvc_analyze.cmd` *(Runs MSVC Static Code Analysis)*
+*   `build_macos.sh` *(Must be executed directly on a macOS host)*
 
 ---
 
@@ -121,10 +143,10 @@ endif()
 When the matrix runs a profile utilizing `VCPKG`, it automatically passes `-DCMAKE_TOOLCHAIN_FILE` pointing to the pre-installed vcpkg location found on standard GitHub-hosted runners (`$VCPKG_INSTALLATION_ROOT`). You do not need to build `vcpkg` yourself.
 
 ### Self-Hosted Runners (MSVC 2005)
-GitHub no longer provides MSVC 2005 on hosted runners. The configuration for this legacy compiler currently sits in `.github/workflows/cdd-cmake-ci.yml`, but **is commented out by default**.
+GitHub no longer provides MSVC 2005 on hosted runners. The configuration for this legacy compiler currently sits in `.github/workflows/c-cmake-ci.yml`, but **is commented out by default**.
 To enable it in the future:
 1. Setup a self-hosted runner and assign it the label `msvc2005`.
-2. Uncomment the MSVC 2005 section in the `matrix` block of `cdd-cmake-ci.yml`.
+2. Uncomment the MSVC 2005 section in the `matrix` block of `c-cmake-ci.yml`.
 
 ### End-of-line Conversions
 Cygwin and MinGW tools often choke on `CRLF` endings if not configured exactly, while older MSVC tools can have unpredictable behavior with mixed `LF` line endings on multi-line macros. We explicitly use `unix2dos` right before CMake configuration for `msvc` environments, and `dos2unix` for `mingw`/`cygwin`/`gcc`/`clang`. If you encounter scripts failing during the build step, verify they are gracefully handling this conversion.
