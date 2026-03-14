@@ -298,8 +298,6 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          touch run_configure.sh
-          chmod +x run_configure.sh
           cat << 'EOF' > run_configure.sh
           set -e
           CMAKE_EXTRA_ARGS=()
@@ -398,6 +396,8 @@ jobs:
           cmake --build build --config "${{ inputs.build_type }}" --parallel 4 ${{ inputs.cmake_build_flags }}
           EOF
           
+          chmod +x ./run_build.sh
+          
           if [ "${{ matrix.compiler }}" = "cygwin" ]; then
             C:/cygwin/bin/bash.exe --login -o igncr -c 'cd "$(cygpath -u "$GITHUB_WORKSPACE")"; ./run_build.sh'
           else
@@ -412,6 +412,8 @@ jobs:
           set -e
           ctest -C "${{ inputs.build_type }}" --output-on-failure
           EOF
+          
+          chmod +x ./run_tests.sh
           
           if [ "${{ matrix.compiler }}" = "cygwin" ]; then
             C:/cygwin/bin/bash.exe --login -o igncr -c 'cd "$(cygpath -u "$GITHUB_WORKSPACE/build")"; ./run_tests.sh'

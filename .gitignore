@@ -1,2 +1,6 @@
+build/
+logs.zip
+mingw_log.txt
+test.txt
 .idea
 .vscode
